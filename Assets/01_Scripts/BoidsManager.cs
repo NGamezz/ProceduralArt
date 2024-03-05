@@ -19,6 +19,8 @@ public class BoidsManager : MonoBehaviour
     private List<Transform> transforms = new();
     private List<Boid> boids = new();
 
+    [SerializeField] private Gradient colourGradient;
+
     private async void Start()
     {
         Cluster defaultCluster = new Cluster();
@@ -40,9 +42,15 @@ public class BoidsManager : MonoBehaviour
 
         await CheckClusters();
 
+        int count = 0;
         foreach ( var cluster in clusters )
         {
             Debug.Log(cluster.boids.Count);
+            foreach(var boid in cluster.boids)
+            {
+                transforms[boid.index].GetComponent<MeshRenderer>().material.color = colourGradient.Evaluate(Mathf.InverseLerp(0.0f, boidsCount, count));
+            }
+            count++;
         }
     }
 
