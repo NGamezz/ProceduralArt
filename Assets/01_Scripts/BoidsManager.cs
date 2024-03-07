@@ -1,5 +1,5 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -11,14 +11,25 @@ public class BoidsManager : MonoBehaviour
     [SerializeField] private int boidsCount = 50;
     [SerializeField] private GameObject boidsPrefab;
 
+    [Header("Target")]
+    [SerializeField] private Transform target;
+    private Vector3 targetVelocity = Vector3.zero;
+    private bool controllerActive = false;
+
+    [SerializeField] private float vrControllerWeight = 10.0f;
+    [SerializeField] private float vrControllerVelocityPersistance = 2.0f;
+
+    [SerializeField] private float fovOfTarget = 70;
+    
+    [SerializeField] private Transform anchor;
+
+    [Header("Boids Pars")]
     [SerializeField] private float seperationDistance = 2.0f;
     [SerializeField] private float seperationStrenght = 2.0f;
 
     [SerializeField] private float targetWeight = 100.0f;
 
     [SerializeField] private float allignmentMultiplier = 0.1f;
-
-    [SerializeField] private Transform target;
 
     [SerializeField] private float2 minMaxSpeed;
 
@@ -28,7 +39,10 @@ public class BoidsManager : MonoBehaviour
 
     [SerializeField] private float2 bounds;
 
-    private float chunkDistance = 50.0f;
+    [SerializeField] private float distanceToCentre = 50.0f;
+    [SerializeField] private float returnStrenght = 100.0f;
+
+    [SerializeField] private float2 scaleBounds;
 
     private List<Cluster> clusters = new();
     private List<Transform> transforms = new();
@@ -36,10 +50,33 @@ public class BoidsManager : MonoBehaviour
 
     [SerializeField] private Gradient colourGradient;
 
+    public void SetTarget ( Transform newTarget, bool controller )
+    {
+        StopAllCoroutines();
+
+        target = newTarget;
+
+        if ( controllerActive && newTarget == null )
+        {
+            StartCoroutine(nameof(ResetControllerVelocity));
+        }
+
+        controllerActive = controller;
+    }
+
+    public void SetVelocity ( Vector3 velocity )
+    {
+        targetVelocity = velocity;
+    }
+
+    public Transform ReturnTarget ()
+    {
+        return target;
+    }
+
     private void Start ()
     {
         Cluster defaultCluster = new(0);
-
         for ( int i = 0; i < boidsCount; i++ )
         {
             var gameObject = Instantiate(boidsPrefab, transform);
@@ -58,64 +95,49 @@ public class BoidsManager : MonoBehaviour
 
         //await CheckClusters();
 
-        //int count = 0;
-        //for ( int i = 0; i < clusters.Count; i++ )
-        //{
-        //    var cluster = clusters[i];
+        for ( int i = 0; i < boidsCount; i++ )
+        {
+            var meshRenderer = transforms[i].GetComponent<MeshRenderer>();
+            var material = meshRenderer.material;
 
-        //    CalculateFlockData(ref cluster);
+            material.EnableKeyword("_EMISSION");
+            material.SetColor("_EmissionColor", colourGradient.Evaluate(Mathf.InverseLerp(0.0f, boidsCount, i)));
+            meshRenderer.material = material;
 
-        //    Debug.Log(cluster.boids.Count);
-        //    foreach ( var boid in cluster.boids )
-        //    {
-        //        transforms[boid.index].GetComponent<MeshRenderer>().material.color = colourGradient.Evaluate(Mathf.InverseLerp(0.0f, boidsCount, count));
-        //    }
-        //    count++;
-        //}
+            var size = UnityEngine.Random.Range(scaleBounds.x, scaleBounds.y);
+
+            transforms[i].localScale = Vector3.one * size;
+        }
     }
 
-    //////Optimize That.
-    //private async Task CheckClusters ()
-    //{
-    //    await Awaitable.BackgroundThreadAsync();
+    private void UpdateVisible ()
+    {
+        if ( anchor == null )
+            return;
 
-    //    for ( int i = 0; i < boids.Count; i++ )
-    //    {
-    //        var currentBoid = boids[i];
+        Vector3 playerPosition = anchor.position;
+        Vector3 playerForward = anchor.forward;
+        foreach ( var boid in boids )
+        {
+            var direction = boid.position - playerPosition;
 
-    //        CalculateFlockData(ref currentBoid.currentCluster);
+            float angle = Vector3.Angle(direction, playerForward);
 
-    //        var distanceFirst = Vector3.Distance(currentBoid.currentCluster.flockPosition / currentBoid.currentCluster.boids.Count, currentBoid.position);
+            if ( angle >= -fovOfTarget && angle <= fovOfTarget )
+            {
+                transforms[boid.index].gameObject.SetActive(true);
+            }
+            else
+            {
+                transforms[boid.index].gameObject.SetActive(false);
+            }
+        }
+    }
 
-    //        if ( distanceFirst > chunkDistance )
-    //        {
-    //            bool hasPlace = false;
-    //            for ( int t = 0; t < clusters.Count; t++ )
-    //            {
-    //                var cluster = clusters[t];
-    //                CalculateFlockData(ref cluster);
-
-    //                var distance = Vector3.Distance(cluster.flockPosition / cluster.boids.Count, currentBoid.position);
-    //                if ( distance < chunkDistance )
-    //                {
-    //                    currentBoid.currentCluster.boids.Remove(currentBoid);
-    //                    currentBoid.currentCluster = cluster;
-    //                    currentBoid.currentCluster.boids.Add(currentBoid);
-
-    //                    hasPlace = true;
-    //                }
-    //            }
-
-    //            if ( !hasPlace )
-    //            {
-    //                currentBoid.currentCluster.boids.Remove(currentBoid);
-    //                currentBoid.currentCluster = new Cluster();
-    //                currentBoid.currentCluster.boids.Add(currentBoid);
-    //                clusters.Add(currentBoid.currentCluster);
-    //            }
-    //        }
-    //    }
-    //}
+    private void FixedUpdate ()
+    {
+        UpdateVisible();
+    }
 
     private void UpdateClusters ()
     {
@@ -165,6 +187,13 @@ public class BoidsManager : MonoBehaviour
         return newCluster;
     }
 
+    private IEnumerator ResetControllerVelocity ()
+    {
+        yield return new WaitForSeconds(vrControllerVelocityPersistance);
+
+        targetVelocity = Vector3.zero;
+    }
+
     private void OnDisable ()
     {
         foreach ( var cluster in clusters )
@@ -185,78 +214,6 @@ public class BoidsManager : MonoBehaviour
         clusters.Add(cluster);
     }
 
-    //[BurstCompile]
-    //private struct UpdateBoidJob : IJobParallelFor
-    //{
-    //    public NativeArray<Boid> boids;
-    //    [ReadOnly] public Cluster cluster;
-
-    //    [ReadOnly] public float deltaTime;
-    //    [ReadOnly] public float2 minMaxSpeed;
-    //    [ReadOnly] public float maxSteerForce;
-    //    [ReadOnly] public float targetWeight;
-    //    [ReadOnly] public float cohesionStrenght;
-    //    [ReadOnly] public float allignmentMultiplier;
-    //    [ReadOnly] public float seperationStrenght;
-
-    //    [WriteOnly] public NativeArray<Vector3> positions;
-    //    [WriteOnly] public NativeArray<Vector3> directions;
-
-    //    public void Dispose ()
-    //    {
-    //        positions.Dispose();
-    //        directions.Dispose();
-    //        boids.Dispose();
-    //    }
-
-    //    public void Execute ( int index )
-    //    {
-    //        var boid = cluster.boids[index];
-    //        Vector3 acceleration = Vector3.zero;
-
-    //        //if ( target != null )
-    //        //{
-    //        //    var direction = target.position - boid.position;
-    //        //    var offSet = SteerTowards(direction, boid.Velocity) * targetWeight;
-
-    //        //    acceleration += offSet;
-    //        //}
-
-    //        if ( cluster.boids.Length != 0 )
-    //        {
-    //            var flockCentre = cluster.flockPosition / cluster.boids.Length;
-
-    //            Vector3 offSetToFlockCentre = flockCentre - boid.position;
-
-    //            var alignmentForce = SteerTowards(cluster.flockDirection.normalized, boid.Velocity) * allignmentMultiplier;
-    //            var cohesionForce = SteerTowards(offSetToFlockCentre, boid.Velocity) * cohesionStrenght;
-    //            var seperationForce = SteerTowards(boid.avoidanceHeading, boid.Velocity) * seperationStrenght;
-
-    //            acceleration += alignmentForce + cohesionForce + seperationForce;
-    //        }
-
-    //        boid.Velocity += acceleration * Time.deltaTime;
-
-    //        float speed = boid.Velocity.magnitude;
-    //        var dir = boid.Velocity / speed;
-    //        speed = math.clamp(speed, minMaxSpeed.x, minMaxSpeed.y);
-    //        boid.Velocity = dir * speed;
-
-    //        boid.position += boid.Velocity * deltaTime;
-    //        boid.forward = dir;
-
-    //        boids[index] = boid;
-    //        positions[index] = boid.position;
-    //        directions[index] = boid.forward;
-    //    }
-
-    //    private readonly Vector3 SteerTowards ( Vector3 vector, Vector3 velocity )
-    //    {
-    //        Vector3 v = vector.normalized * minMaxSpeed.y - velocity;
-    //        return Vector3.ClampMagnitude(v, maxSteerForce);
-    //    }
-    //}
-
     private Boid UpdateBoid ( Boid boid, Cluster cluster )
     {
         Vector3 acceleration = Vector3.zero;
@@ -265,6 +222,21 @@ public class BoidsManager : MonoBehaviour
         {
             var direction = target.position - boid.position;
             var offSet = SteerTowards(direction, boid.Velocity) * targetWeight;
+
+            acceleration += offSet;
+        }
+
+        if ( targetVelocity != Vector3.zero )
+        {
+            var offSet = SteerTowards(targetVelocity, boid.Velocity) * vrControllerWeight;
+
+            acceleration += offSet;
+        }
+
+        if ( anchor != null && distanceToCentre > 0 && Vector3.Distance(boid.position, this.anchor.position) > distanceToCentre )
+        {
+            var direction = anchor.position - boid.position;
+            var offSet = SteerTowards(direction, boid.Velocity) * returnStrenght;
 
             acceleration += offSet;
         }
@@ -301,8 +273,15 @@ public class BoidsManager : MonoBehaviour
 
     private void OnDrawGizmos ()
     {
-        if ( clusters.Count != 0 )
-            Gizmos.DrawCube(clusters[0].flockPosition, Vector3.one * 5.0f);
+        Color color = Color.white;
+        color.a = 0.1f;
+        Gizmos.color = color;
+        Gizmos.DrawSphere(anchor.position, distanceToCentre);
+
+        color.a = 1;
+        Gizmos.color = color;
+        if ( clusters.Count > 0 )
+            Gizmos.DrawCube(clusters[0].flockPosition / clusters[0].boids.Length, Vector3.one * 10.0f);
     }
 
     private Vector3 SteerTowards ( Vector3 vector, Vector3 velocity )
@@ -332,10 +311,13 @@ public struct CalculateClusterData : IJobParallelFor
         for ( int t = 0; t < cluster.boids.Length; t++ )
         {
             var currentBoid = cluster.boids[t];
-            var boidDirection = boid.position - currentBoid.position;
-            var distance = boidDirection.x * boidDirection.x + boidDirection.y * boidDirection.y + boidDirection.z + boidDirection.z;
+            if ( boid.index == currentBoid.index )
+                continue;
 
-            if ( distance < seperationDistance * seperationDistance )
+            var boidDirection = currentBoid.position - boid.position;
+            var distance = boidDirection.magnitude;
+
+            if ( distance < seperationDistance * seperationDistance)
             {
                 boid.avoidanceHeading -= boidDirection / distance;
             }

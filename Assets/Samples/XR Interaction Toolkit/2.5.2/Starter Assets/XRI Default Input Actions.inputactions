@@ -2600,6 +2600,62 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "SetTargetRight",
+            "id": "fe3c44e9-b7ef-4d56-a0e4-fe5928218bcc",
+            "actions": [
+                {
+                    "name": "SetTarget",
+                    "type": "Button",
+                    "id": "715e0e30-a47b-4dbe-a555-79149b542f5c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "500f8ffa-89b7-47ff-8e4a-c348fd653f39",
+                    "path": "<XRInputV1::Valve::IndexControllerOpenXR>{RightHand}/triggerpressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SetTarget",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "SetTargetLeft",
+            "id": "5b53ed3c-73bb-4b26-8217-5ddbf4f7759d",
+            "actions": [
+                {
+                    "name": "SetTarget",
+                    "type": "Button",
+                    "id": "732ba415-9747-421c-85af-fd01be1132ec",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "302ebe01-693b-4924-bdcd-5cacb7f90828",
+                    "path": "<XRInputV1::Valve::IndexControllerOpenXR>{LeftHand}/triggerpressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SetTarget",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [
