@@ -280,30 +280,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6dcb791a417d164b9916ee1b5a43b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boidsCount: 2000
+  boidsCount: 4000
   boidsPrefab: {fileID: 287931986643681739, guid: db49ba3234ec0cc45b0605b125e18ef6, type: 3}
-  seperationDistance: 1
-  seperationStrenght: 6
-  targetWeight: 9
-  allignmentMultiplier: 2
   target: {fileID: 0}
-  anchor: {fileID: 912769512}
+  targetVelocity: {x: 0, y: 0, z: 0}
   vrControllerWeight: 10
   vrControllerVelocityPersistance: 5
-  minMaxSpeed:
-    x: 5
-    y: 10
-  cohesionStrenght: 5
-  maxSteerForce: 8
   fovOfTarget: 70
+  anchor: {fileID: 912769512}
+  seperationDistance: 4
+  seperationStrenght: 7
+  targetWeight: 9
+  allignmentMultiplier: 3
+  minMaxSpeed:
+    x: 4
+    y: 7
+  cohesionStrenght: 5
+  maxSteerForce: 1
+  controllerRange: 5
+  boidViewDistance: 10
   bounds:
     x: 20
     y: 40
   distanceToCentre: 30
-  returnStrenght: 10
+  returnStrenght: 15
   scaleBounds:
     x: 0.01
     y: 0.07
+  gridSize:
+    x: 5
+    y: 5
+    z: 5
+  cellSize: 5
   colourGradient:
     serializedVersion: 2
     key0: {r: 1, g: 0, b: 0, a: 1}
@@ -339,6 +347,71 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3462571325970164592, guid: 65eb6b98091a5734ba9d9ca871cef69a, type: 3}
   m_PrefabInstance: {fileID: 1826977299}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1488217072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1488217075}
+  - component: {fileID: 1488217077}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1488217075
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488217072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17.780169, y: -51.639637, z: -61.848267}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2009705770}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1488217077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488217072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e20ba725cab40a4483956ce69c00233, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clips:
+  - volume: 1
+    audioClips:
+    - {fileID: 8300000, guid: 39dc52581420c7348b0ed1554837b4a7, type: 3}
+    weight: 1
+  - volume: 0.3
+    audioClips:
+    - {fileID: 8300000, guid: 1aea94c29eeaed944abf9444a0ba058d, type: 3}
+    weight: 2
+  - volume: 0
+    audioClips:
+    - {fileID: 8300000, guid: 0aeeee0a85ae5694c95874e4b259719e, type: 3}
+    weight: 1
+  amountOfLines: 3
+  lineLenght: 6
+  bpm: 240
+  sequenceRepeatCount: 5
+  infiniteRepeat: 1
+  treshHoldForNote: 0.4
+  silence: {fileID: 8300000, guid: ab8ff9e9535bb014487b2eac996e6830, type: 3}
 --- !u!1 &1612723023 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2871854917430088273, guid: 65eb6b98091a5734ba9d9ca871cef69a, type: 3}
@@ -758,6 +831,37 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1652778754}
   m_SourcePrefab: {fileID: 100100000, guid: 65eb6b98091a5734ba9d9ca871cef69a, type: 3}
+--- !u!1 &2009705769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2009705770}
+  m_Layer: 0
+  m_Name: SynthHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2009705770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009705769}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1488217075}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -766,3 +870,4 @@ SceneRoots:
   - {fileID: 328535743}
   - {fileID: 1794236213}
   - {fileID: 1826977299}
+  - {fileID: 1488217075}

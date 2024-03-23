@@ -29,7 +29,7 @@ public class Controller : MonoBehaviour
         if ( boidsManager.ReturnTarget() != null && boidsManager.ReturnTarget() == transform )
         {
             controller.TryGetFeatureValue(UnityEngine.XR.CommonUsages.deviceVelocity, out velocity);
-            boidsManager.SetVelocity(velocity);
+            boidsManager.SetTargetVelocity(velocity);
         }
     }
 
