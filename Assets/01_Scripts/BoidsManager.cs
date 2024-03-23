@@ -99,7 +99,7 @@ public class SpatialGrid : IDisposable
 public class BoidsManager : MonoBehaviour
 {
     [SerializeField] private int boidsCount = 1000;
-    [SerializeField] private GameObject boidsPrefab;
+    [SerializeField] private List<GameObject> boidsPrefab;
 
     [Header("Target")]
     [SerializeField] private Transform target;
@@ -141,8 +141,6 @@ public class BoidsManager : MonoBehaviour
     [SerializeField] private int3 gridSize;
     [SerializeField] private int cellSize;
 
-    //private SpatialGrid spatialGrid;
-
     private List<Cluster> clusters = new();
     private List<Transform> transforms = new();
     private NativeList<Boid> boids;
@@ -177,12 +175,10 @@ public class BoidsManager : MonoBehaviour
     {
         boids = new(boidsCount, Allocator.Persistent);
 
-        //spatialGrid = new(gridSize, cellSize);
-
         Cluster defaultCluster = new(0);
         for ( int i = 0; i < boidsCount; i++ )
         {
-            var gameObject = Instantiate(boidsPrefab, transform);
+            var gameObject = Instantiate(boidsPrefab[UnityEngine.Random.Range(0, boidsPrefab.Count)], transform);
             var position = UnityEngine.Random.insideUnitSphere.normalized * UnityEngine.Random.Range(bounds.x, bounds.y);
             gameObject.transform.position = position;
             transforms.Add(gameObject.transform);
@@ -191,27 +187,23 @@ public class BoidsManager : MonoBehaviour
 
             defaultCluster.boids.Add(boid);
 
-            //spatialGrid.AddElement(boid.position, boid);
+            var size = UnityEngine.Random.Range(scaleBounds.x, scaleBounds.y);
+            transforms[i].localScale = Vector3.one * size;
 
             boids.Add(boid);
         }
 
         defaultCluster = CalculateFlockData(defaultCluster);
         clusters.Add(defaultCluster);
+        //for ( int i = 0; i < boidsCount; i++ )
+        //{
+        //    //var meshRenderer = transforms[i].GetComponent<MeshRenderer>();
+        //    //var material = meshRenderer.material;
 
-        for ( int i = 0; i < boidsCount; i++ )
-        {
-            var meshRenderer = transforms[i].GetComponent<MeshRenderer>();
-            var material = meshRenderer.material;
-
-            material.EnableKeyword("_EMISSION");
-            material.SetColor("_EmissionColor", colourGradient.Evaluate(Mathf.InverseLerp(0.0f, boidsCount, i)));
-            meshRenderer.material = material;
-
-            var size = UnityEngine.Random.Range(scaleBounds.x, scaleBounds.y);
-
-            transforms[i].localScale = Vector3.one * size;
-        }
+        //    //material.EnableKeyword("_EMISSION");
+        //    //material.SetColor("_EmissionColor", colourGradient.Evaluate(Mathf.InverseLerp(0.0f, boidsCount, i)));
+        //    //meshRenderer.material = material;
+        //}
     }
 
     [BurstCompile]
@@ -251,15 +243,11 @@ public class BoidsManager : MonoBehaviour
 
     private void UpdateClusters ()
     {
-        //var clusters = spatialGrid.GetCells();
-
         for ( int i = 0; i < clusters.Count; i++ )
         {
             var updated = UpdateCluster(clusters[i], i);
             clusters[i] = updated;
         }
-
-        //spatialGrid.SetCells(clusters);
     }
 
     [BurstCompile]
@@ -309,12 +297,6 @@ public class BoidsManager : MonoBehaviour
     {
         var newCluster = CalculateFlockData(cluster);
 
-        //for ( int i = 0; i < newCluster.boids.Length; i++ )
-        //{
-        //    var boid = newCluster.boids[i];
-        //    //spatialGrid.RemoveElement(boid.position, boid);
-        //}
-
         NativeArray<Boid> boids = new(newCluster.boids.Length, Allocator.TempJob);
 
         UpdateBoids updateBoids = new()
@@ -347,9 +329,6 @@ public class BoidsManager : MonoBehaviour
             var transform = transforms[boid.index];
             transform.position = boid.position;
             transform.forward = boid.forward == Vector3.zero ? transform.forward : boid.forward;
-
-            //boid = spatialGrid.AddElement(boid.position, boid);
-            //newCluster.boids[i] = boid;
         }
 
         updateBoids.boids.Dispose();

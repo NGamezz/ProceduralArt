@@ -25,6 +25,8 @@ public class AudioSequencer : MonoBehaviour
 
     private void Start ()
     {
+        amountOfLines = clips.Length;
+
         audioSources = new AudioSource[amountOfLines];
 
         SetupAudioSource();
@@ -83,9 +85,9 @@ public class AudioSequencer : MonoBehaviour
 
             for ( int t = 0; t < firstLine.line.Length; t++ )
             {
-                if ( firstLine.line[i].active )
+                if ( secondLine.line[i].active )
                 {
-                    secondLine.line[i].clip = secondLine.line[i].secondClip;
+                    firstLine.line[i].clip = firstLine.line[i].secondClip;
                 }
             }
         }
@@ -138,8 +140,6 @@ public struct SequencerLine
         for ( int i = 0; i < line.Length; i++ )
         {
             var ranVal = Mathf.PerlinNoise1D(((float)i + offSet.x) / line.Length * weight);
-
-            Debug.Log(ranVal);
 
             var clip = clips[Random.Range(0, clips.Length)];
             if ( ranVal < noteTreshHold )
