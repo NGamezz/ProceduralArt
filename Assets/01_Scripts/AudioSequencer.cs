@@ -64,33 +64,43 @@ public class AudioSequencer : MonoBehaviour
     {
         var lines = new List<SequencerLine>();
 
+        float bpmMultiplier;
+        if ( sequenceIndex % 8 == 0 || sequenceIndex <= 2 )
+        {
+            bpmMultiplier = Random.Range(0.6f, 0.9f);
+        }
+        else
+        {
+            bpmMultiplier = 1.0f;
+        }
+
         //initial Values
         for ( int i = 0; i < amountOfLines; i++ )
         {
-            SequencerLine line = new(lineLenght, bpm, clips[i].audioClips, silence, clips[i].weight, new(sequenceIndex + i, sequenceIndex + i), treshHoldForNote);
+            SequencerLine line = new(clips[i].notesPerLine, bpm * bpmMultiplier, clips[i].audioClips, silence, clips[i].weight, new(sequenceIndex + i, sequenceIndex + i), treshHoldForNote);
             lines.Add(line);
 
             var ran = Random.Range(-1.0f, 1.0f);
             audioSources[i].panStereo = ran;
         }
 
-        //Second Pass
-        for ( int i = 0; i < lines.Count; i += 2 )
-        {
-            if ( i + 1 >= lines.Count )
-                continue;
+        ////Second Pass
+        //for ( int i = 0; i < lines.Count; i += 2 )
+        //{
+        //    if ( i + 1 >= lines.Count )
+        //        continue;
 
-            var firstLine = lines[i];
-            var secondLine = lines[i + 1];
+        //    var firstLine = lines[i];
+        //    var secondLine = lines[i + 1];
 
-            for ( int t = 0; t < firstLine.line.Length; t++ )
-            {
-                if ( secondLine.line[i].active )
-                {
-                    firstLine.line[i].clip = firstLine.line[i].secondClip;
-                }
-            }
-        }
+        //    for ( int t = 0; t < firstLine.line.Length; t++ )
+        //    {
+        //        if ( secondLine.line[i].active )
+        //        {
+        //            firstLine.line[i].clip = firstLine.line[i].secondClip;
+        //        }
+        //    }
+        //}
 
         Task[] tasks = new Task[lines.Count];
         for ( int i = 0; i < lines.Count; i++ )
@@ -101,7 +111,6 @@ public class AudioSequencer : MonoBehaviour
         await Task.WhenAll(tasks);
     }
 
-    //Has an odd space in between the first and second note.
     private async Task PlaySequencerAsync ( SequencerLine line, AudioSource source )
     {
         foreach ( var note in line.line )
@@ -137,9 +146,16 @@ public struct SequencerLine
     {
         line = new SequencerNote[lenght];
 
+        bpm = (bpm / 4 * lenght);
+
+        float multiplier = 1.0f;
+        float increment = 1.5f;
+
         for ( int i = 0; i < line.Length; i++ )
         {
-            var ranVal = Mathf.PerlinNoise1D(((float)i + offSet.x) / line.Length * weight);
+            var ranVal = Mathf.PerlinNoise1D(((float)i + offSet.x) / line.Length * weight * multiplier);
+
+            multiplier += increment;
 
             var clip = clips[Random.Range(0, clips.Length)];
             if ( ranVal < noteTreshHold )
@@ -148,10 +164,26 @@ public struct SequencerLine
             }
             else
             {
-                line[i] = new(clip, true, silence);
+                if ( i == 1 || i == lenght - 1 )
+                {
+                    float ran = Random.Range(0.0f, 1.0f);
+
+                    if ( ran < 0.5f )
+                    {
+                        line[i] = new(clip, false, clip);
+                        if ( 1 + i < line.Length )
+                        {
+                            line[i + 1] = new(clip, false, clip);
+                            continue; 
+                        }
+                    }
+                }
+                else
+                {
+                    line[i] = new(clip, false, clip);
+                }
             }
         }
-
         Bpm = bpm;
     }
 }
@@ -161,5 +193,6 @@ public struct AudioClipHolder
 {
     public float volume;
     public AudioClip[] audioClips;
+    public int notesPerLine;
     public float weight;
 }

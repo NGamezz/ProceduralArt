@@ -398,29 +398,60 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clips:
-  - volume: 1
+  - volume: 0.7
     audioClips:
     - {fileID: 8300000, guid: af742505c74ce0b45a8f94650810d477, type: 3}
-    weight: 1
-  - volume: 1
-    audioClips:
-    - {fileID: 8300000, guid: 25b33fe6c31631f46b616bc33b1ac9e4, type: 3}
-    weight: 5
-  - volume: 1
+    notesPerLine: 16
+    weight: 3
+  - volume: 0.7
     audioClips:
     - {fileID: 8300000, guid: fa1c1a0ed1652ca46b50bbeeb874cfdc, type: 3}
+    notesPerLine: 4
     weight: 3
-  - volume: 1
+  - volume: 0.7
     audioClips:
     - {fileID: 8300000, guid: 416962a3f466d034c8c3ddf5dd8d993f, type: 3}
-    - {fileID: 8300000, guid: aadbd539a6c3b844e8692f9fdd546a1e, type: 3}
+    - {fileID: 8300000, guid: f4d63d2e425a7a14c9df25363b524464, type: 3}
+    notesPerLine: 16
     weight: 3
   amountOfLines: 0
   lineLenght: 6
-  bpm: 140
+  bpm: 120
   sequenceRepeatCount: 5
   infiniteRepeat: 1
-  treshHoldForNote: 0.35
+  chorusLineRange:
+    x: 0
+    y: 0
+    z: 0
+  preChorusLineRange:
+    x: 0
+    y: 0
+    z: 0
+  verseLineRange:
+    x: 0
+    y: 0
+    z: 0
+  introLineRange:
+    x: 0
+    y: 0
+    z: 0
+  breakDownLineRange:
+    x: 0
+    y: 0
+    z: 0
+  introBpmRange:
+    x: 0
+    y: 0
+    z: 0
+  restBpmRange:
+    x: 0
+    y: 0
+    z: 0
+  breakDownBpmRange:
+    x: 0
+    y: 0
+    z: 0
+  treshHoldForNote: 0.4
   silence: {fileID: 8300000, guid: ab8ff9e9535bb014487b2eac996e6830, type: 3}
 --- !u!1 &1612723023 stripped
 GameObject:
