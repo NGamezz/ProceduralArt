@@ -84,24 +84,6 @@ public class AudioSequencer : MonoBehaviour
             audioSources[i].panStereo = ran;
         }
 
-        ////Second Pass
-        //for ( int i = 0; i < lines.Count; i += 2 )
-        //{
-        //    if ( i + 1 >= lines.Count )
-        //        continue;
-
-        //    var firstLine = lines[i];
-        //    var secondLine = lines[i + 1];
-
-        //    for ( int t = 0; t < firstLine.line.Length; t++ )
-        //    {
-        //        if ( secondLine.line[i].active )
-        //        {
-        //            firstLine.line[i].clip = firstLine.line[i].secondClip;
-        //        }
-        //    }
-        //}
-
         Task[] tasks = new Task[lines.Count];
         for ( int i = 0; i < lines.Count; i++ )
         {
