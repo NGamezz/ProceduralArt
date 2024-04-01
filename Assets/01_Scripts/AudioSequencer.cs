@@ -10,7 +10,6 @@ public class AudioSequencer : MonoBehaviour
     [SerializeField] private AudioClipHolder[] clips;
 
     [SerializeField] private int amountOfLines = 3;
-    [SerializeField] private int lineLenght = 4;
     [SerializeField] private int bpm = 240;
     [SerializeField] private int sequenceRepeatCount = 5;
     [SerializeField] private bool infiniteRepeat = false;

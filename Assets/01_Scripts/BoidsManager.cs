@@ -127,8 +127,6 @@ public class BoidsManager : MonoBehaviour
 
     [SerializeField] private float maxSteerForce = 4.0f;
 
-    [SerializeField] private float controllerRange = 5.0f;
-
     [SerializeField] private float boidViewDistance = 25.0f;
 
     [SerializeField] private float2 bounds;
